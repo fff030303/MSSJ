@@ -214,6 +214,25 @@ def delete_chat_history(history_id, user_id):
 def clear_chat_history(user_id):
     return clear_user_history(user_id)
 
+# 修改用户密码
+def update_password(user_id, old_password, new_password):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # 检查用户ID和旧密码是否匹配
+    cursor.execute("SELECT id FROM users WHERE id = ? AND password = ?", (user_id, old_password))
+    user = cursor.fetchone()
+    
+    if not user:
+        conn.close()
+        return False
+    
+    # 更新密码
+    cursor.execute("UPDATE users SET password = ? WHERE id = ?", (new_password, user_id))
+    conn.commit()
+    conn.close()
+    return True
+
 # 初始化数据库
 if __name__ == "__main__":
     init_db()

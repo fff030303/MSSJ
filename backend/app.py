@@ -243,7 +243,7 @@ doubao_bot = DoubaoBot(DOUBAO_API_KEY, DOUBAO_API_URL, DOUBAO_MODEL)
 from database import (
     init_db, add_user, verify_user, username_exists,
     save_question, save_answer, get_user_history, 
-    delete_question, clear_user_history
+    delete_question, clear_user_history, update_password
 )
 
 # 确保数据库已初始化
@@ -462,6 +462,31 @@ def login():
         print(f"处理登录请求时出错: {str(e)}")
         return jsonify({"success": False, "message": f"登录失败: {str(e)}"}), 500
 
+@app.route('/api/change-password', methods=['POST'])
+def change_password():
+    """处理用户修改密码请求"""
+    try:
+        data = request.json
+        user_id = data.get('user_id')
+        old_password = data.get('old_password')
+        new_password = data.get('new_password')
+        
+        if not user_id or not old_password or not new_password:
+            return jsonify({"success": False, "message": "用户ID、旧密码和新密码不能为空"}), 400
+            
+        if len(new_password) < 6:
+            return jsonify({"success": False, "message": "新密码需要不少于6位！"}), 400
+            
+        success = update_password(user_id, old_password, new_password)
+        
+        if success:
+            return jsonify({"success": True, "message": "密码修改成功！"})
+        else:
+            return jsonify({"success": False, "message": "密码修改失败，旧密码可能不正确"}), 400
+            
+    except Exception as e:
+        print(f"处理修改密码请求时出错: {str(e)}")
+        return jsonify({"success": False, "message": f"修改密码失败: {str(e)}"}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
