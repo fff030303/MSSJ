@@ -1,4 +1,5 @@
-import { defineStore } from 'pinia'
+import {defineStore} from 'pinia'
+import api from '../api/index.js'
 
 export const useHistoryStore = defineStore('history', {
   state: () => ({
@@ -48,11 +49,22 @@ export const useHistoryStore = defineStore('history', {
 
   actions: {
     // 加载历史记录
-    loadHistory() {
-      const savedHistory = localStorage.getItem('conversationHistory')
-      if (savedHistory) {
-        this.conversations = JSON.parse(savedHistory)
+    async loadHistory(user_id) {
+      try {
+        await api.history.getAll({
+          user_id: user_id,
+          limit: 20,
+        }).then(res=>{
+          this.conversations = res.history
+          this.saveHistory()
+        })
+      }catch(error){
+        console.error('Failed to load history:', error)
       }
+      // const savedHistory = localStorage.getItem('conversationHistory')
+      // if (savedHistory) {
+      //   this.conversations = JSON.parse(savedHistory)
+      // }
     },
     
     // 添加新对话到历史
@@ -94,6 +106,6 @@ export const useHistoryStore = defineStore('history', {
         this.conversations.splice(index, 1)
         this.saveHistory()
       }
-    }
+    },
   }
 }) 

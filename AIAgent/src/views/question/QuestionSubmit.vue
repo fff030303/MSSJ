@@ -34,7 +34,7 @@
         <!-- 问题 -->
         <div v-for="(item, index) in conversation" :key="index">
           <!-- 用户问题 -->
-          <div v-if="item.type === 'question'" class="question-message">
+          <div class="question-message">
             <div class="message-header">
               <div class="message-title">问题</div>
               <div class="message-time">{{ formatTime(item.timestamp) }}</div>
@@ -43,7 +43,7 @@
           </div>
 
           <!-- AI回答列表 -->
-          <div v-if="item.type === 'answers'" class="answers-container">
+          <div class="answers-container">
             <div class="answers-header">
               <div class="answers-title">AI回答</div>
               <div class="answers-tools">
@@ -104,9 +104,11 @@ import { ElMessage } from 'element-plus'
 import { Loading } from '@element-plus/icons-vue'
 import { useQuestionStore } from '@/store/question'
 import { useAnswerStore } from '@/store/answer'
+import { useAuthStore } from '@/store/auth'
 
 const questionStore = useQuestionStore()
 const answerStore = useAnswerStore()
+const userStore = useAuthStore()
 
 // 选择的AI提供商
 const providers = reactive({
@@ -178,11 +180,15 @@ const submitQuestion = async () => {
       content: questionText,
       timestamp: new Date().toISOString()
     }
+
+    // 用于发送的问题对象
+    const questionSend = {
+      query: questionText,
+      user_id: userStore.user.id,
+    }
     
     conversation.value.push(questionItem)
     
-    // 清空输入
-    questionInput.value = ''
     
     // 构造所选的AI提供商列表
     const selectedProviders = []
@@ -190,41 +196,31 @@ const submitQuestion = async () => {
       if (value) selectedProviders.push(key)
     }
     
-    // 模拟发送到各个AI服务提供商并获取答案
-    // 在实际应用中，这里应该通过API发送请求
-    
-    // 模拟延迟
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    
-    // 构造模拟回答
-    const answersItem = {
-      type: 'answers',
-      timestamp: new Date().toISOString(),
-      answers: selectedProviders.map((provider, index) => ({
-        id: Date.now() + '-' + index,
-        provider: provider.charAt(0).toUpperCase() + provider.slice(1),
-        content: `这是来自${provider}的回答: ${questionText} 是一个很好的问题。这里是${provider}的详细解答...`,
-        timestamp: new Date().toISOString()
-      }))
-    }
-    
-    // 添加回答到对话
-    conversation.value.push(answersItem)
+    // 发送提问请求
+    await questionStore.submitQuestion(questionSend).then((res) => {
+      // 添加回答到对话
+      conversation.value = questionStore.answers
+      // console.log("conversation："+conversation.value);
+    })
+
+
+    // 清空输入
+    questionInput.value = ''
     
     // 添加到历史记录
     const historyItem = {
       id: Date.now().toString(),
       question: questionText,
-      answersCount: answersItem.answers.length,
+      answersCount: questionStore.answers.length,
       timestamp: new Date().toISOString()
     }
     
     // 更新历史记录
     questionStore.addToHistory({
-      id: historyItem.id,
-      question: historyItem.question,
-      answersCount: historyItem.answersCount,
-      timestamp: historyItem.timestamp
+      id: Date.now().toString(),
+      question: questionText,
+      answersCount: questionStore.answers.length, // 使用实际回答数量
+      timestamp: new Date().toISOString()
     })
     
   } catch (error) {
@@ -470,4 +466,4 @@ const formatTime = (timestamp) => {
     transform: rotate(360deg);
   }
 }
-</style> 
+</style>

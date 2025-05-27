@@ -19,10 +19,10 @@
     <div v-else class="history-list">
       <div v-for="item in historyList" :key="item.id" class="history-item" @click="viewConversation(item)">
         <div class="history-item-content">
-          <div class="history-question">{{ item.question }}</div>
+          <div class="history-question">{{ item.content }}</div>
           <div class="history-meta">
-            <span class="history-time">{{ formatTime(item.timestamp) }}</span>
-            <el-tag size="small" type="info">AI回答: {{ item.answersCount }}</el-tag>
+            <span class="history-time">{{ formatTime(item.answers.get(0).timestamp) }}</span>
+            <el-tag size="small" type="info">AI回答: {{ item.answers.get(0).content }}</el-tag>
           </div>
         </div>
         <el-icon class="arrow-icon"><ArrowRight /></el-icon>
@@ -49,7 +49,13 @@ import { useRouter } from 'vue-router'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { ArrowRight } from '@element-plus/icons-vue'
 import { useHistoryStore } from '@/store/history'
+import { useQuestionStore } from '@/store/question'
+import { useAnswerStore } from '@/store/answer'
+import { useAuthStore } from '@/store/auth'
 
+const questionStore = useQuestionStore()
+const answerStore = useAnswerStore()
+const userStore = useAuthStore()
 const router = useRouter()
 const historyStore = useHistoryStore()
 const loading = ref(false)
@@ -81,9 +87,9 @@ onMounted(() => {
 
 const loadHistory = async () => {
   loading.value = true
+    console.log('加载历史记录:', userStore.user.id);
   try {
-    // 加载历史记录
-    historyStore.loadHistory()
+    await historyStore.loadHistory(userStore.user.id)
     pagination.currentPage = 1
   } catch (error) {
     console.error('加载历史记录失败:', error)

@@ -2,27 +2,28 @@ import axios from 'axios'
 
 // 创建axios实例
 const api = axios.create({
-  baseURL: '/api', // 实际项目中这里应该配置为后端API的基础URL
+  baseURL: 'http://127.0.0.1:5000', // 实际项目中这里应该配置为后端API的基础URL
+  // baseURL: 'http://172.16.3.171:5000',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json'
   }
 })
 
-// 请求拦截器
-api.interceptors.request.use(
-  config => {
-    // 从localStorage获取token并添加到请求头
-    const token = localStorage.getItem('token')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-    return config
-  },
-  error => {
-    return Promise.reject(error)
-  }
-)
+// // 请求拦截器
+// api.interceptors.request.use(
+//   config => {
+//     // 从localStorage获取token并添加到请求头
+//     const token = localStorage.getItem('token')
+//     if (token) {
+//       config.headers.Authorization = `Bearer ${token}`
+//     }
+//     return config
+//   },
+//   error => {
+//     return Promise.reject(error)
+//   }
+// )
 
 // 响应拦截器
 api.interceptors.response.use(
@@ -30,12 +31,12 @@ api.interceptors.response.use(
     return response.data
   },
   error => {
-    if (error.response && error.response.status === 401) {
-      // 401未授权，清除token并跳转到登录页
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
-      window.location.href = '/login'
-    }
+    // if (error.response && error.response.status === 401) {
+    //   // 401未授权，清除token并跳转到登录页
+    //   localStorage.removeItem('token')
+    //   localStorage.removeItem('user')
+    //   window.location.href = '/login'
+    // }
     return Promise.reject(error)
   }
 )
@@ -60,8 +61,8 @@ export default {
 
   // 问题相关
   questions: {
-    submit(question) {
-      return api.post('/questions', { content: question })
+    submit(data) {
+      return api.post('/api/chat', { query: data.query, user_id: data.user_id })
     },
     getAnswers(questionId) {
       return api.get(`/questions/${questionId}/answers`)
@@ -80,8 +81,8 @@ export default {
 
   // 历史记录
   history: {
-    getAll() {
-      return api.get('/history')
+    getAll(params) { // 改为接收params对象
+      return api.get('/api/history', { params })
     },
     getById(historyId) {
       return api.get(`/history/${historyId}`)
@@ -90,4 +91,4 @@ export default {
       return api.delete(`/history/${historyId}`)
     }
   }
-} 
+}

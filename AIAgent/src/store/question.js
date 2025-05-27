@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import axios from 'axios'
+import api from '../api/index.js'
 
 export const useQuestionStore = defineStore('question', {
   state: () => ({
@@ -13,8 +13,6 @@ export const useQuestionStore = defineStore('question', {
     async submitQuestion(question) {
       this.isLoading = true
       try {
-        // 模拟向多个AI服务提供商发送请求
-        // 在实际情况下，这里会调用后端API，后端再分发到不同的AI提供商
         const id = Date.now().toString()
         this.currentQuestion = {
           id,
@@ -22,41 +20,45 @@ export const useQuestionStore = defineStore('question', {
           timestamp: new Date().toISOString()
         }
         
-        // 模拟API请求延迟
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        
-        // 模拟从不同AI获取的答案
-        const mockAnswers = [
-          {
-            id: '1',
-            provider: 'AI提供商A',
-            content: `这是AI提供商A对问题"${question}"的回答。`,
-            timestamp: new Date().toISOString(),
-            questionId: id
-          },
-          {
-            id: '2',
-            provider: 'AI提供商B',
-            content: `这是AI提供商B对问题"${question}"的详细解答。该问题涉及到的内容可能有多个方面需要考虑。`,
-            timestamp: new Date().toISOString(),
-            questionId: id
-          },
-          {
-            id: '3',
-            provider: 'AI提供商C',
-            content: `AI提供商C的答案：${question}是一个很好的问题。从以下几个角度来看待这个问题...`,
-            timestamp: new Date().toISOString(),
-            questionId: id
-          }
-        ]
-        
-        this.answers = mockAnswers
+      
+        await api.questions.submit(question).then(res=>{
+          const spark_answer = res.spark_answer
+          const qianfan_answer = res.qianfan_answer
+          const doubao_answer = res.doubao_answer
+          const question_id = res.question_id
+          this.answers = [
+            {
+              id: '1',
+              provider: 'AI提供商A',
+              content: spark_answer,
+              timestamp: new Date().toISOString(),
+              questionId: question_id,
+            },
+            {
+              id: '2',
+              provider: 'AI提供商B',
+              content: qianfan_answer,
+              timestamp: new Date().toISOString(),
+              questionId: question_id,
+            },
+            {
+              id: '3',
+              provider: 'AI提供商C',
+              content: doubao_answer,
+              timestamp: new Date().toISOString(),
+              questionId: question_id,
+            }
+          ]
+          console.log(this.answers);
+          
+        })
+
         
         // 添加到历史记录
         this.addToHistory({
           id,
           question,
-          answersCount: mockAnswers.length,
+          answersCount: this.answers.length, // 改用实际获取的 answers 数组
           timestamp: new Date().toISOString()
         })
         
@@ -93,4 +95,4 @@ export const useQuestionStore = defineStore('question', {
       this.answers = []
     }
   }
-}) 
+})
