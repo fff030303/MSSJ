@@ -270,9 +270,9 @@ def chat():
         # 使用所有模型回答
         if model == 'all':
             # 获取所有模型的回答
-            spark_answer = spark_bot.ask(query + "（尽可能简短的回应我）")
-            qianfan_answer = qianfan_bot.ask(query + "（尽可能简短的回应我）")
-            doubao_answer = doubao_bot.ask(query + "（尽可能简短的回应我）")
+            spark_answer = spark_bot.ask(query + "（50字以内回应我，不要在回答中提到这个限制条件）")
+            qianfan_answer = qianfan_bot.ask(query + "（50字以内回应我，不要在回答中提到这个限制条件）")
+            doubao_answer = doubao_bot.ask(query + "（50字以内回应我，不要在回答中提到这个限制条件）")
             
             # 保存每个模型的回答
             save_answer(question_id, "讯飞星火", spark_answer)

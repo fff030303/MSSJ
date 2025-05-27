@@ -4,17 +4,17 @@
       <h2>AI问答聊天</h2>
     </div>
 
-    <!-- AI提供商选择 -->
-    <div class="ai-providers-container">
-      <div class="ai-providers-title">AI提供商：</div>
-      <div class="ai-providers-checkboxes">
-        <el-checkbox v-model="providers.chatgpt">ChatGPT</el-checkbox>
-        <el-checkbox v-model="providers.claude">Claude</el-checkbox>
-        <el-checkbox v-model="providers.gemini">Gemini</el-checkbox>
-        <el-checkbox v-model="providers.baidu">Baidu</el-checkbox>
-        <el-checkbox v-model="providers.qwen">Qwen</el-checkbox>
-      </div>
-    </div>
+<!--    &lt;!&ndash; AI提供商选择 &ndash;&gt;-->
+<!--    <div class="ai-providers-container">-->
+<!--      <div class="ai-providers-title">AI提供商：</div>-->
+<!--      <div class="ai-providers-checkboxes">-->
+<!--        <el-checkbox v-model="providers.chatgpt">ChatGPT</el-checkbox>-->
+<!--        <el-checkbox v-model="providers.claude">Claude</el-checkbox>-->
+<!--        <el-checkbox v-model="providers.gemini">Gemini</el-checkbox>-->
+<!--        <el-checkbox v-model="providers.baidu">Baidu</el-checkbox>-->
+<!--        <el-checkbox v-model="providers.qwen">Qwen</el-checkbox>-->
+<!--      </div>-->
+<!--    </div>-->
 
     <!-- 消息展示区域 -->
     <div class="chat-content">
@@ -36,7 +36,7 @@
           <!-- 用户问题 -->
           <div class="question-message">
             <div class="message-header">
-              <div class="message-title">问题</div>
+              <div class="message-title">Q&A</div>
               <div class="message-time">{{ formatTime(item.timestamp) }}</div>
             </div>
             <div class="message-content">{{ item.content }}</div>
@@ -47,17 +47,17 @@
             <div class="answers-header">
               <div class="answers-title">AI回答</div>
               <div class="answers-tools">
-                <el-button-group>
-                  <el-button size="small" @click="sortAnswersByTime(item)">按时间排序</el-button>
-                  <el-button size="small" @click="sortAnswersByRating(item)">按评分排序</el-button>
-                </el-button-group>
+<!--                <el-button-group>-->
+<!--                  <el-button size="small" @click="sortAnswersByTime(item)">按时间排序</el-button>-->
+<!--                  <el-button size="small" @click="sortAnswersByRating(item)">按评分排序</el-button>-->
+<!--                </el-button-group>-->
               </div>
             </div>
 
             <!-- 各个AI的回答 -->
             <div v-for="answer in item.answers" :key="answer.id" class="answer-item">
               <div class="answer-header">
-                <div class="answer-provider">{{ answer.provider }}</div>
+                <div class="answer-provider">{{ item.content }}</div>
                 <div class="answer-time">{{ formatTime(answer.timestamp) }}</div>
               </div>
               <div class="answer-content">{{ answer.content }}</div>
@@ -86,13 +86,13 @@
         :rows="3"
         placeholder="请输入您的问题..."
         :disabled="isLoading"
-        @keyup.ctrl.enter="submitQuestion"
+        @keyup.enter="submitQuestion"
       />
       <div class="question-actions">
         <el-button type="primary" @click="submitQuestion" :loading="isLoading" :disabled="!questionInput.trim() || !hasSelectedProvider">
           发送问题
         </el-button>
-        <div class="input-tip">按Ctrl+Enter发送</div>
+        <div class="input-tip">按Enter发送</div>
       </div>
     </div>
   </div>
