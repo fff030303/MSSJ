@@ -21,8 +21,8 @@
         <div class="history-item-content">
           <div class="history-question">{{ item.content }}</div>
           <div class="history-meta">
-            <span class="history-time">{{ formatTime(item.answers.get(0).timestamp) }}</span>
-            <el-tag size="small" type="info">AI回答: {{ item.answers.get(0).content }}</el-tag>
+            <span class="history-time">{{ formatTime(item.answers[0].timestamp) }}</span>
+            <el-tag size="small" type="info">AI回答: {{ item.answers[0].content }}</el-tag>
           </div>
         </div>
         <el-icon class="arrow-icon"><ArrowRight /></el-icon>
@@ -101,8 +101,7 @@ const loadHistory = async () => {
 
 // 查看对话
 const viewConversation = (item) => {
-  router.push(`/home/answer/${item.id}`)
-}
+  router.push({ path: `/home/answer/${item.id}`, query: { conversation: JSON.stringify(item) } })}
 
 // 清空所有历史
 const confirmClearHistory = () => {

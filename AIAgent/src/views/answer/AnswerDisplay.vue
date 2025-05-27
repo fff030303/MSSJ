@@ -18,71 +18,72 @@
         
         <div class="question-info">
           <div class="question-content">
-            <strong>问题：</strong> {{ currentQuestion.content }}
+<!--            <strong>问题：</strong> {{ currentQuestion.content }}-->
+            <strong>问题：</strong> {{ item.content }}
           </div>
           <div class="question-meta">
-            <span>时间：{{ formatTime(currentQuestion.timestamp) }}</span>
-            <span>回答数量：{{ answers.length }}</span>
+            <span>时间：{{ formatTime(item.timestamp) }}</span>
+            <span>回答数量：{{ item.answers.length }}</span>
           </div>
         </div>
       </div>
 
       <!-- 答案筛选 -->
-      <div class="section filter-section">
-        <div class="filter-header">
-          <h3>答案筛选</h3>
-          <el-button size="small" @click="resetFilter">重置</el-button>
-        </div>
-        
-        <div class="filter-content">
-          <el-form :model="filterForm" label-width="100px">
-            <el-form-item label="AI提供商">
-              <el-select v-model="filterForm.providers" multiple placeholder="选择AI提供商" style="width: 100%">
-                <el-option
-                  v-for="provider in allProviders"
-                  :key="provider"
-                  :label="provider"
-                  :value="provider"
-                />
-              </el-select>
-            </el-form-item>
-            
-            <el-form-item label="关键词">
-              <el-input
-                v-model="filterForm.keyword"
-                placeholder="输入关键词"
-                @keyup.enter="applyFilter"
-              />
-            </el-form-item>
-            
-            <el-form-item>
-              <el-button type="primary" @click="applyFilter">应用筛选</el-button>
-            </el-form-item>
-          </el-form>
-        </div>
-      </div>
+<!--      <div class="section filter-section">-->
+<!--        <div class="filter-header">-->
+<!--          <h3>答案筛选</h3>-->
+<!--          <el-button size="small" @click="resetFilter">重置</el-button>-->
+<!--        </div>-->
+<!--        -->
+<!--        <div class="filter-content">-->
+<!--          <el-form :model="filterForm" label-width="100px">-->
+<!--            <el-form-item label="AI提供商">-->
+<!--              <el-select v-model="filterForm.providers" multiple placeholder="选择AI提供商" style="width: 100%">-->
+<!--                <el-option-->
+<!--                  v-for="provider in allProviders"-->
+<!--                  :key="provider"-->
+<!--                  :label="provider"-->
+<!--                  :value="provider"-->
+<!--                />-->
+<!--              </el-select>-->
+<!--            </el-form-item>-->
+<!--            -->
+<!--            <el-form-item label="关键词">-->
+<!--              <el-input-->
+<!--                v-model="filterForm.keyword"-->
+<!--                placeholder="输入关键词"-->
+<!--                @keyup.enter="applyFilter"-->
+<!--              />-->
+<!--            </el-form-item>-->
+<!--            -->
+<!--            <el-form-item>-->
+<!--              <el-button type="primary" @click="applyFilter">应用筛选</el-button>-->
+<!--            </el-form-item>-->
+<!--          </el-form>-->
+<!--        </div>-->
+<!--      </div>-->
 
       <!-- 答案列表 -->
       <div class="section answers-section">
-        <div class="answers-header">
-          <h3>AI回答（{{ displayAnswers.length }}/{{ answers.length }}）</h3>
-          <div class="answers-tools">
-            <el-button-group>
-              <el-button size="small" @click="sortByRating">按评分排序</el-button>
-              <el-button size="small" @click="sortByProvider">按提供商排序</el-button>
-            </el-button-group>
-          </div>
-        </div>
+<!--        <div class="answers-header">-->
+<!--          <h3>AI回答（{{ displayAnswers.length }}/{{ item.answers.length }}）</h3>-->
+<!--          <div class="answers-tools">-->
+<!--            <el-button-group>-->
+<!--              <el-button size="small" @click="sortByRating">按评分排序</el-button>-->
+<!--              <el-button size="small" @click="sortByProvider">按提供商排序</el-button>-->
+<!--            </el-button-group>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--        -->
+<!--        <div v-if="displayAnswers.length === 0" class="empty-answers">-->
+<!--          <el-empty description="没有符合条件的答案" />-->
+<!--        </div>-->
         
-        <div v-if="displayAnswers.length === 0" class="empty-answers">
-          <el-empty description="没有符合条件的答案" />
-        </div>
-        
-        <div v-else class="answers-list">
-          <el-card v-for="answer in displayAnswers" :key="answer.id" class="answer-card">
+        <div class="answers-list">
+          <el-card v-for="answer in item.answers" class="answer-card">
             <template #header>
               <div class="answer-header">
-                <span class="provider">{{ answer.provider }}</span>
+                <span class="provider">{{ answer.model_name }}</span>
                 <div class="answer-actions">
                   <el-rate
                     v-model="ratings[answer.id]"
@@ -120,7 +121,7 @@ const currentQuestion = ref(null)
 const answers = ref([])
 const displayAnswers = ref([])
 const ratings = ref({})
-
+const item = ref({})
 // 筛选表单
 const filterForm = reactive({
   providers: [],
@@ -131,11 +132,19 @@ const filterForm = reactive({
 const allProviders = computed(() => {
   const providers = new Set()
   answers.value.forEach(answer => providers.add(answer.provider))
-  return Array.from(providers)
+  // return Array.from(providers)
+  return ["豆包","星火","讯飞"]
 })
 
 // 加载页面时获取数据
 onMounted(async () => {
+  if (route.query.conversation) {
+    item.value = JSON.parse(route.query.conversation);
+    // 使用 item 数据
+    console.log('接收到的 item:', item);
+  }
+
+
   // 加载用户的评分记录
   answerStore.loadRatings()
   ratings.value = answerStore.ratings
